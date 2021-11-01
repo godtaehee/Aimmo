@@ -1,0 +1,276 @@
+openapi: 3.0.0
+info:
+  description: 게시판 CRUD API 명세
+  version: 1.0.0
+  title: 게시판 CRUD
+  contact:
+    email: "qkrskdjf@naver.com"
+  license:
+    name: Apache 2.0
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+servers:
+  - url: "http://localhost:3000"
+
+tags:
+  - name: page
+    description: 페이지
+  - name: post
+    description: 게시글
+  - name: auth
+    description: 인증
+
+components:
+  schemas:
+    User:
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          example: "1234"
+    Page:
+      properties:
+        list:
+          type: array
+          items:
+            $ref: "#/components/schemas/Post"
+        count:
+          type: integer
+    Post:
+      properties:
+        id:
+          type: integer
+          format: int64
+        userId:
+          type: integer
+          format: int64
+        title:
+          type: string
+        text:
+          type: string
+        createAt:
+          type: string
+          format: date
+          
+  requestBodies:
+    createPost:
+      content:
+        application/json:
+          schema:
+            properties:
+              title:
+                type: string
+              text:
+                type: string
+      description: request data to create post
+      required: true
+
+    updatePost:
+      content:
+        application/json:
+          schema:
+            properties:
+              title:
+                type: string
+              text:
+                type: string
+      description: request data to update post
+      required: true
+    createUser:
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/User"
+      description: request data to create user
+      required: true
+      
+    loginUser:
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/User"
+      description: request data for user login
+      required: true
+
+paths:
+  /page:
+    get:
+      summary: 페이지를 반환합니다.
+      tags:
+        - page
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            format: int64
+          example: 1
+          required: true
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            format: int64
+          example: 1
+          required: true
+      responses:
+        "200":
+          description: 페이지 요청 성공
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Page"
+        "404":
+          description: Page not found
+     
+          
+  /post:
+    get:
+      summary: 게시글을 반환합니다.
+      tags:
+        - post
+      parameters:
+        - name: id
+          in: query
+          schema:
+            type: string
+            format: int64
+          example: 1
+          required: true
+      responses:
+        "200":
+          description: 게시글 요청 성공
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Post"
+        "404":
+          description: Post not found
+
+    post:
+      summary: 게시글을 작성합니다.
+      tags:
+        - post
+      requestBody:
+        $ref: "#/components/requestBodies/createPost"
+      responses:
+        "200":
+          description: 게시글 작성 성공
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Post"
+        "404":
+          description: UserId not found 
+        "401":
+          description: jwt must be provided 
+
+    patch:
+      summary: 게시글을 수정합니다.
+      tags:
+        - post
+      parameters:
+        - name: id
+          in: query
+          schema:
+            type: string
+          example: 1
+          required: true
+      requestBody:
+        $ref: "#/components/requestBodies/updatePost"
+      responses:
+        "200":
+          description: 게시글 수정 성공
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Post"
+        "404":
+          description: Post not found 
+        "401":
+          description: jwt must be provided 
+        "403":
+          description: You don't have edit permission
+
+
+    delete:
+      summary: 게시글을 삭제합니다.
+      tags:
+        - post
+      parameters:
+        - name: id
+          in: query
+          schema:
+            type: string
+          example: 1
+          required: true
+      responses:
+        "200":
+          description: 게시글 삭제 성공
+        "401":
+          description: jwt must be provided 
+        "404":
+          description: Post not found
+        "403":
+          description: You don't have edit permission
+
+
+  /auth/signup:
+    post:
+      summary: 회원가입 합니다.
+      tags:
+        - auth
+      requestBody:
+        $ref: "#/components/requestBodies/createUser"
+      responses:
+        "200":
+          description: OK
+        "404":
+          description: email already exist
+  
+  
+  /auth/login:
+    post:
+      summary: 로그인합니다.
+      tags:
+        - auth
+      requestBody:
+        $ref: "#/components/requestBodies/loginUser"
+      responses:
+        "200":
+          description: login success
+          content:
+            application/json:
+              schema:
+                properties:
+                  refreshToken:
+                    type: string
+        "404":
+          description: email not found
+
+  /auth/logout:
+    get:
+      summary: 로그아웃 합니다.
+      tags:
+        - auth
+      responses:
+        "200":
+          description: OK
+        "404":
+          description: user not found
+
+  /auth/refresh:
+    get:
+      summary: AccessToken 재발급
+      tags:
+        - auth
+      responses:
+        "400":
+          description: Access token is not expired!
+        "403":
+           description: Access token and refresh token are need for refresh!
+        "401":
+          description: No authorized
+        "404":
+          description: user not found
