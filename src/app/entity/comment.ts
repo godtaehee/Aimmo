@@ -4,10 +4,7 @@ import { BeforeInsert, Column, Entity } from "typeorm";
 @Entity()
 export class Comment extends Base {
   @BeforeInsert()
-  initValue() {
-    this.depth = 1;
-    this.parentId = null;
-  }
+  initValue() {}
 
   @Column()
   postId: number;
