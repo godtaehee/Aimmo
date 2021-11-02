@@ -1,13 +1,14 @@
 import express, { Request, Response, Router, NextFunction } from "express";
 import { PostController } from "../controller/post.controller";
 import { authJwt } from "../middlewares/auth.middleware";
+import { viewDuplicateJwt } from "../middlewares/views.duplicate";
 import { DecodedRequest } from "../definition/decoded_jwt";
 const router: Router = express.Router();
 const controller: PostController = new PostController();
 
 router.get(
   "/",
-  authJwt,
+  viewDuplicateJwt,
   async (req: DecodedRequest, res: Response, next: NextFunction) => {
     await controller.get(req, res, next);
   }
