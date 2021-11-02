@@ -48,12 +48,12 @@ export class PostController {
     res: Response,
     next: NextFunction
   ): Promise<any> {
-    const postId: number = Number(req.query.id);
-    const userId: number = req.decodedId;
+    const postId = req.query.id;
+    const userId = req.decodedId;
     this.postService = new PostService();
     try {
       const postInfo = { userId, postId };
-      const exPost = await this.postService.deletePost(postInfo);
+      await this.postService.deletePost(postInfo);
       return res.status(200).json({
         message: "Delete Success",
       });
