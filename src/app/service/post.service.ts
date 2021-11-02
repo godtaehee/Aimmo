@@ -28,8 +28,10 @@ export class PostService {
           post.views.push(requestInfo.userId);
         }
         post.count += 1;
-        return await this.postRepository.update(requestInfo.id, post);
+        await this.postRepository.update(requestInfo.id, post);
+        return post;
       }
+      return post;
     }
   }
 
@@ -42,7 +44,7 @@ export class PostService {
     }
     await this.queryRunner.startTransaction();
     try {
-      const postInfo = { title, text, category, user };
+      const postInfo = { title, text, category, userId, user };
       const test = this.postRepository.create(postInfo);
       const post = await this.postRepository.save(test);
       await this.queryRunner.commitTransaction();
@@ -59,16 +61,8 @@ export class PostService {
   async updatePost(updateQuestionInfo): Promise<any> {
     const { title, text, postId, userId } = updateQuestionInfo;
     const question = await this.postRepository.findOne(postId);
-    if (question === undefined) {
-      const noAuthQuestion = await this.postRepository.findOne({
-        where: { id: postId },
-      });
-      if (noAuthQuestion !== undefined) {
-        throw new PermissionException(String(postId));
-      } else {
-        throw new PostNotFoundException(String(postId));
-      }
-    }
+    if (question.userId !== userId)
+      throw new PermissionException(String(postId));
     await this.queryRunner.startTransaction();
     try {
       question.title = title || question.title;
@@ -87,15 +81,8 @@ export class PostService {
   async deletePost(deleteQuestionInfo): Promise<any> {
     const { postId, userId } = deleteQuestionInfo;
     const question = await this.postRepository.findOne(postId);
-    if (question === undefined) {
-      const noAuthQuestion = await this.postRepository.findOne(postId);
-      if (noAuthQuestion !== undefined) {
-        await this.queryRunner.release();
-        throw new PermissionException(String(postId));
-      } else {
-        await this.queryRunner.release();
-        throw new PostNotFoundException(String(postId));
-      }
+    if (question.userId !== userId) {
+      throw new PermissionException(String(postId));
     }
     await this.queryRunner.startTransaction();
     try {
@@ -111,7 +98,21 @@ export class PostService {
   }
 
   async getByCondition(requestInfo) {
-    const post = await this.postRepository.find({ where: requestInfo });
+    const post = await this.postRepository.find({
+      where: {
+        $or: [
+          {
+            title: {
+              $regex: `.*${requestInfo.title}.*`,
+            },
+          },
+          {
+            category: requestInfo.category,
+          },
+        ],
+      },
+    });
+
     if (post === undefined) {
       await this.queryRunner.release();
       throw new PostNotFoundException("찾을수없다.");
