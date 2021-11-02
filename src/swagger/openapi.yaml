@@ -1,8 +1,8 @@
 openapi: 3.0.0
 info:
-  description: 게시판 CRUD API 명세
+  description: Aimmo 기업과제 게시판 기능 구현
   version: 1.0.0
-  title: 게시판 CRUD
+  title: Aimmo 기업과제
   contact:
     email: "qkrskdjf@naver.com"
   license:
@@ -18,6 +18,8 @@ tags:
     description: 게시글
   - name: auth
     description: 인증
+  - name: comment
+    description: 댓글
 
 components:
   schemas:
@@ -39,35 +41,50 @@ components:
           type: integer
     Post:
       properties:
-        id:
-          type: integer
-          format: int64
-        userId:
-          type: integer
-          format: int64
         title:
           type: string
+          example: "게시글 제목"
         text:
           type: string
+          example: "게시글 내용 ~~~~"
+        category:
+          type: string
+          example: "개발"
+        userId:
+          type: string
+          example: "sdsdas123123"
+        count:
+          type: integer
+          example: 1
+        views:
+          type: array
+          example: ["231231sdasd", "dasd21323", "12312ssdaw12"]
         createAt:
           type: string
           format: date
+        comment:
+          type: array
+          $ref: ["#/components/components/Comment"]
+          example: ["comment objcet1", "comment object2"]
 
     Comment:
       properties:
         postId:
-          type: integer
-          format: int64
+          type: string
         depth:
           type: integer
           format: int64
+          example: 2
         parentId:
           type: integer
           format: int64
+          example: "1231h13j12d1qw13"
         author:
           type: string
+          example: "sasdasd221"
         text:
           type: string
+          example: "너무 좋아요~"
 
   requestBodies:
     createPost:
@@ -77,8 +94,13 @@ components:
             properties:
               title:
                 type: string
+                example: "게시글 제목"
               text:
                 type: string
+                example: "게시글 내용 ~~~~"
+              category:
+                type: string
+                example: "WEB"
       description: request data to create post
       required: true
 
@@ -98,6 +120,9 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/User"
+            example:
+              email: "newEmail@naver.com"
+              password: "1234"
       description: request data to create user
       required: true
 
@@ -108,13 +133,13 @@ components:
             $ref: "#/components/schemas/User"
       description: request data for user login
       required: true
-
     createComment:
       content:
         application/json:
           schema:
             $ref: "#/components/schemas/Comment"
-      description: request data for create comment
+
+      description: request data for create comment - parentId - 게시글의 _id(댓글) 또는 게시글 댓글의 _id기록
       required: true
 
 
@@ -135,8 +160,7 @@ paths:
         - name: offset
           in: query
           schema:
-            type: integer
-            format: int64
+            type: string
           example: 1
           required: true
       responses:
@@ -149,18 +173,63 @@ paths:
         "404":
           description: Page not found
 
+  /comment/page:
+    get:
+      summary: 대댓글의 페이지를 반환합니다.
+      tags:
+        - page
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            format: int64
+          example: 1
+          required: true
+        - name: offset
+          in: query
+          schema:
+            type: string
+          example: 1
+          required: true
+      responses:
+        "200":
+          description: 페이지 요청 성공
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Page"
+        "404":
+          description: Page not found
+
+  /post/condition:
+    get:
+      summary: 제목과 카테고리를 기준으로 게시글을 검색합니다.
+      tags:
+        - post
+      parameters:
+        - name: title
+          in: query
+          schema:
+            type: string
+          example: 안녕하세요
+        - name: category
+          in: query
+          schema:
+            type: string
+          example: WEB
+
   /post:
     get:
       summary: 게시글을 반환합니다.
       tags:
         - post
       parameters:
-        - name: id
+        - name: _id
           in: query
           schema:
-            type: integer
-            format: int64
-          example: 1
+            type: string
+            example: "sdasd12312313"
           required: true
       responses:
         "200":
@@ -171,7 +240,6 @@ paths:
                 $ref: "#/components/schemas/Post"
         "404":
           description: Post not found
-
     post:
       summary: 게시글을 작성합니다.
       tags:
@@ -185,11 +253,10 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Post"
-        "404":
-          description: UserId not found
         "401":
           description: jwt must be provided
-
+        "404":
+          description: UserId not found
     patch:
       summary: 게시글을 수정합니다.
       tags:
@@ -198,8 +265,7 @@ paths:
         - name: id
           in: query
           schema:
-            type: integer
-            format: int64
+            type: string
           example: 1
           required: true
       requestBody:
@@ -211,14 +277,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Post"
-        "404":
-          description: Post not found
         "401":
           description: jwt must be provided
         "403":
           description: You don't have edit permission
-
-
+        "404":
+          description: Post not found
     delete:
       summary: 게시글을 삭제합니다.
       tags:
@@ -227,8 +291,7 @@ paths:
         - name: id
           in: query
           schema:
-            type: integer
-            format: int64
+            type: string
           example: 1
           required: true
       responses:
@@ -236,10 +299,37 @@ paths:
           description: 게시글 삭제 성공
         "401":
           description: jwt must be provided
-        "404":
-          description: Post not found
         "403":
           description: You don't have edit permission
+        "404":
+          description: Post not found
+    /post/condition:
+      get:
+        summary: 게시글을 제목과 카테고리로 검색합니다.
+        tags:
+          - post
+        parameters:
+          - name: title
+            in: query
+            schema:
+              type: string
+              example: "게시글 제목"
+            required: false
+          - name: category
+            in: query
+            schema:
+              type: string
+              example: "개발"
+            required: false
+        responses:
+          "200":
+            description: 게시글 검색
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/Post"
+          "404":
+            description: Post not found
 
   /comment:
     post:
@@ -248,7 +338,6 @@ paths:
         - comment
       requestBody:
         $ref: "#/components/requestBodies/createComment"
-
   /auth/signup:
     post:
       summary: 회원가입 합니다.
@@ -261,7 +350,6 @@ paths:
           description: OK
         "404":
           description: email already exist
-
   /auth/login:
     post:
       summary: 로그인합니다.
@@ -280,7 +368,6 @@ paths:
                     type: string
         "404":
           description: email not found
-
   /auth/logout:
     get:
       summary: 로그아웃 합니다.
@@ -291,7 +378,6 @@ paths:
           description: OK
         "404":
           description: user not found
-
   /auth/refresh:
     get:
       summary: AccessToken 재발급
@@ -300,9 +386,10 @@ paths:
       responses:
         "400":
           description: Access token is not expired!
-        "403":
-          description: Access token and refresh token are need for refresh!
         "401":
           description: No authorized
+        "403":
+          description: Access token and refresh token are need for refresh!
         "404":
           description: user not found
+
