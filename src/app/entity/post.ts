@@ -32,6 +32,9 @@ export class Post extends Base {
   count: number;
 
   @Column()
+  userId: string;
+
+  @Column()
   views: string[];
 
   @Column()

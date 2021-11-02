@@ -7,7 +7,7 @@ export class Comment extends Base {
   initValue() {}
 
   @Column()
-  postId: number;
+  postId: string;
 
   @Column()
   depth: number;
@@ -16,7 +16,7 @@ export class Comment extends Base {
   parentId: string;
 
   @Column()
-  author: string;
+  userId: string;
 
   @Column()
   text: string;

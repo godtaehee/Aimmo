@@ -1,7 +1,7 @@
-import {Base} from "./base.entity";
-import {Column, Entity} from "typeorm";
+import { Base } from "./base.entity";
+import { Column, Entity } from "typeorm";
 
-@Entity()
+@Entity({ name: "user" })
 export class User extends Base {
   @Column()
   email: string;
@@ -10,5 +10,5 @@ export class User extends Base {
   password: string;
 
   @Column()
-  token : string;
+  token: string;
 }
