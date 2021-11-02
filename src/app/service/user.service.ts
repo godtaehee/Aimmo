@@ -16,15 +16,14 @@ export class UserService {
 
     async findUserById(id: number) {
         const user = await this.userRepository
-            .findOne({ where: { id: id } });
+            .findOne( id );
         return user;
     }
 
     async loginRefreshToken(userInfo) {
         const { userId, refreshToken } = userInfo
-      console.log(userId.id)
         const user = await this.userRepository
-            .findOne({ where: { _id: userId.id } });
+            .findOne( userId.id);
         user.token = refreshToken;
         await this.userRepository.save(user);
     }
