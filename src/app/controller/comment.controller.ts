@@ -20,7 +20,7 @@ export class CommentController {
       const commentInfo = { postId, depth, parentId, text, userId };
       const result = await this.commentService.createReply(commentInfo);
       return res.status(200).json({
-        boardId: result.id,
+        result,
         message: "Upload Success",
       });
     } catch (error) {

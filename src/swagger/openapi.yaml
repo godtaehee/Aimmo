@@ -338,6 +338,10 @@ paths:
         - comment
       requestBody:
         $ref: "#/components/requestBodies/createComment"
+      responses:
+        "200":
+          description: OK
+
   /auth/signup:
     post:
       summary: 회원가입 합니다.
