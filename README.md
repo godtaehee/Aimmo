@@ -207,3 +207,13 @@ MongoDB도 Auto-Generated된 숫자 Value를 생성할수 있지만 기본으로
   - Unit Test는 진행하지 못했습니다.
 - 1000만건 이상의 데이터를 넣고 성능테스트 진행 결과 필요
   - 성능 테스트에 관한 부분은 윗부분에 있습니다.
+
+
+## 회고록
+
+[박상엽](https://velog.io/@lotus/Pre-OnboardingAssignment-1)
+
+[현상협](https://velog.io/@nellholic108)
+
+[김태희](https://medium.com/@godtaehee/week1-aimmo-%EA%B3%BC%EC%A0%9C%EB%A5%BC-%EC%A7%84%ED%96%89%ED%95%98%EB%A9%B0-b5a5476c85cc)
+
