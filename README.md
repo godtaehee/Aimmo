@@ -215,5 +215,7 @@ MongoDB도 Auto-Generated된 숫자 Value를 생성할수 있지만 기본으로
 
 [현상협](https://velog.io/@nellholic108)
 
-[김태희](https://medium.com/@godtaehee/week1-aimmo-%EA%B3%BC%EC%A0%9C%EB%A5%BC-%EC%A7%84%ED%96%89%ED%95%98%EB%A9%B0-b5a5476c85cc)
+[뇌가 지쳤을때 쓴 김태희 회고록](https://medium.com/@godtaehee/week1-aimmo-%EA%B3%BC%EC%A0%9C%EB%A5%BC-%EC%A7%84%ED%96%89%ED%95%98%EB%A9%B0-b5a5476c85cc)
+
+[뇌가 정상일때 쓴 김태희 회고록](https://medium.com/@godtaehee/week1-aimmo-%EA%B8%B0%EC%88%A0%EA%B3%BC%EC%A0%9C%EB%A5%BC-%EB%A7%88%EC%B9%98%EA%B3%A0-67fffb08b47b)
 
